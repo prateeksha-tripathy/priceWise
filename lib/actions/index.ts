@@ -1,13 +1,49 @@
-"use server"
+"use server";
 
+import { revalidatePath } from "next/cache";
+import Product from "../models/product.model";
+import { connectToDB } from "../mongoose";
 import { scrapeAmazonProduct } from "../scraper";
+import { getAveragePrice, getHighestPrice, getLowestPrice } from "../utlis";
 
-export async function scraoeAndStoreProduct(productUrl : string){
-    if(!productUrl) return ;
+export async function scraoeAndStoreProduct(productUrl: string) {
+  if (!productUrl) return;
 
-    try {
-        const scrapedProduct = await scrapeAmazonProduct(productUrl);
-    } catch (error : any) {
-        throw new Error(`Failed to create/update product : ${error.message}`)
+  try {
+    connectToDB();
+    const scrapedProduct = await scrapeAmazonProduct(productUrl);
+
+    if (!scrapedProduct) return;
+
+    let product = scrapedProduct;
+    const existingProduct = await Product.findOne({ url: scrapedProduct.url });
+
+    if (existingProduct) {
+      const updatedPriceHistory: any = [
+        ...existingProduct.priceHistory,
+        { price: scrapedProduct.currentPrice },
+      ];
+
+      product = {
+        ...scrapedProduct,
+        priceHistory: updatedPriceHistory,
+        lowestPrice: getLowestPrice(updatedPriceHistory),
+        highestPrice: getHighestPrice(updatedPriceHistory),
+        averagePrice: getAveragePrice(updatedPriceHistory),
+      };
     }
+
+    const newProduct = await Product.findOneAndUpdate(
+      { url: scrapedProduct.url },
+      product,
+      {
+        upsert: true,
+        new: true,
+      }
+    );
+
+    revalidatePath(`/products/${newProduct._id}`); //if not this, it wont update the database. We will be stuck in cache
+  } catch (error: any) {
+    throw new Error(`Failed to create/update product : ${error.message}`);
+  }
 }
