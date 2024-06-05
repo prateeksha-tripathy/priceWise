@@ -2,7 +2,7 @@
 
 import axios from "axios";
 import * as cheerio from "cheerio";
-import { extractCurrency, extractDescription, extractPrice } from "../utlis";
+import { extractCategory, extractCurrency, extractDescription, extractPrice } from "../utlis";
 
 export async function scrapeAmazonProduct(url: string) {
   if (!url) return;
@@ -53,6 +53,9 @@ export async function scrapeAmazonProduct(url: string) {
       $("#landingImage").attr("data-a-dynamic-image") ||
       "{}";
 
+
+      const category = extractCategory($("#nav-subnav"));
+    console.log("category",category);
     const imageUrls = Object.keys(JSON.parse(images));
 
     const currency = extractCurrency($(".a-price-symbol"));
@@ -70,7 +73,7 @@ export async function scrapeAmazonProduct(url: string) {
       originalPrice: Number(originalPrice) || Number(currentPrice),
       priceHistory: [],
       discountRate: Number(discountRate),
-      category: "category",
+      category: category,
       reviewsCount: 100,
       stars: 4.5,
       isOutOfStock: outOfStock,

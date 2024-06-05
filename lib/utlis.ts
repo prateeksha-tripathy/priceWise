@@ -29,6 +29,17 @@ export function extractPrice(...elements: any) {
 
   return '';
 }
+export function extractCategory(...elements: any[]) {
+  for (const element of elements) {
+    const category = element.attr('data-category');
+
+    if(category) {
+      return category;
+    }
+  }
+
+  return '';
+}
 
 // Extracts and returns the currency symbol from an element.
 export function extractCurrency(element: any) {
@@ -116,3 +127,4 @@ export const formatNumber = (num: number = 0) => {
     maximumFractionDigits: 0,
   });
 };
+
