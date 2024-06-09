@@ -15,11 +15,10 @@ export async function generateEmailBody(
   type: NotificationType
 ) {
   const THRESHOLD_PERCENTAGE = 40;
-  // Shorten the product title
   const shortenedTitle =
     product.title.length > 20
       ? `${product.title.substring(0, 20)}...`
-      : product.title;
+      : `product.title`;
 
   let subject = "";
   let body = "";
@@ -82,9 +81,9 @@ export async function generateEmailBody(
 
 const transporter = nodemailer.createTransport({
   pool: true,
-  service: "hotmail", // for using hotmail, create an outlook account to get the auth data
+  service: "hotmail",
   port: 587,
-  secure: false,
+  secure: false, // true for 465, false for other ports
   auth: {
     user: "pricewise2003@outlook.com",
     pass: "Pricewise",
@@ -96,17 +95,17 @@ export const sendEmail = async (
   emailContent: EmailContent,
   sendTo: string[]
 ) => {
-    console.log("inside send email");
   const mailOptions = {
     from: "pricewise2003@outlook.com",
-    to: sendTo,
+    to: sendTo.join(", "),
     html: emailContent.body,
     subject: emailContent.subject,
   };
 
-  transporter.sendMail(mailOptions, (error: any, info: any) => {
-    if (error) return console.log(error);
-
+  try {
+    let info = await transporter.sendMail(mailOptions);
     console.log("Email sent: ", info);
-  });
+  } catch (error) {
+    console.error("Error sending email: ", error);
+  }
 };
