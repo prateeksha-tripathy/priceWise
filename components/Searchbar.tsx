@@ -1,7 +1,6 @@
 "use client"
 
 import { scraoeAndStoreProduct } from '@/lib/actions'
-import { log } from 'console'
 import React, { FormEvent, useState } from 'react'
 
 const isValidAmazonProductURL = (url: string) => {

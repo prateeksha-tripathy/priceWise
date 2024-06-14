@@ -54,7 +54,7 @@ export async function scrapeAmazonProduct(url: string) {
       "{}";
 
 
-      const category = extractCategory($("#nav-subnav"));
+    const category = extractCategory($("#nav-subnav"));
     console.log("category",category);
     const imageUrls = Object.keys(JSON.parse(images));
 
@@ -78,9 +78,9 @@ export async function scrapeAmazonProduct(url: string) {
       stars: 4.5,
       isOutOfStock: outOfStock,
       description,
-      lowestPrice: Number(currentPrice) || Number(originalPrice),
+      lowestPrice: Number(currentPrice)*0.9 || Number(originalPrice)*0.9,
       highestPrice: Number(originalPrice) || Number(currentPrice),
-      averagePrice: Number(currentPrice) || Number(originalPrice),
+      averagePrice: Number(currentPrice)*0.95 || Number(originalPrice)*0.95 ,
     };
     // console.log(data);
     return data;
